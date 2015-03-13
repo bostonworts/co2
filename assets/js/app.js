@@ -23,6 +23,7 @@ function sidebarClick(id) {
 var mapboxToon = L.tileLayer("https://{s}.tiles.mapbox.com/v3/examples.bc17bb2a/{z}/{x}/{y}.png", {
   detectRetina: 'true',
   maxZoom: 21,
+  noWrap: true,
   subdomains: ["a", "b", "c", "d"],
   attribution: 'Tiles courtesy of <a href="http://www.mapbox.com/" target="_blank">Mapbox</a> '
 });
