@@ -28,24 +28,6 @@ var mapboxToon = L.tileLayer("https://{s}.tiles.mapbox.com/v3/examples.bc17bb2a/
   attribution: 'Tiles courtesy of <a href="http://www.mapbox.com/" target="_blank">Mapbox</a> '
 });
 
-// Here's the Tabletop feed
-// First we'll initialize Tabletop with our spreadsheet
-var jqueryNoConflict = jQuery;
-jqueryNoConflict(document).ready(function(){
-  initializeTabletopObject('1ynu8iX51VeVtK-ppjhJMmRq5of5eWveLQrw4cPiLfVY');
-});
-
-// Pull data from Google spreadsheet
-// And push to our startUpLeaflet function
-function initializeTabletopObject(dataSpreadsheet){
-  Tabletop.init({
-      key: dataSpreadsheet,
-      callback: startUpLeafet,
-      simpleSheet: true,
-      debug: false
-    });
-}
-
 /* Overlay Layers */
 var highlight = L.geoJson(null);
 
@@ -57,39 +39,7 @@ var markerClusters = new L.MarkerClusterGroup({
   disableClusteringAtZoom: 16
 });
 
-function startUpLeafet(tabletopData) {
-  // Tabletop creates arrays out of our data
-  // We'll loop through them and create markers for each
-  for (var num = 0; num < tabletopData.length; num ++) {
-    // Our table columns
-    // Change 'brewery', 'address', etc.
-    // To match table column names in your table
-    var dataOne = tabletopData[num].name;
-
-    // Pull in our lat, long information
-    var dataLat = tabletopData[num].lat;
-    var dataLon = tabletopData[num].lon;
-
-    // Add to our marker
-    marker_location = new L.LatLng(dataLat, dataLon);
-    // Create the marker
-      layer = new L.Marker(marker_location);
-    
-      // Create the popup
-      // Change 'Address', 'City', etc.
-    // To match table column names in your table
-      var popup = "<div class=popup_box" + "id=" + num + ">";
-      popup += "<div class='popup_box_header'><strong>" + dataOne + "</strong></div>";
-      popup += "</div>";
-      // Add to our marker
-    layer.bindPopup(popup);
-  
-    // Add marker to our to map
-    map.addLayer(layer);
-  }
-};
-
-/* Empty layer placeholder to add to layer control for listening when to add/remove pois to markerClusters layer
+/* Empty layer placeholder to add to layer control for listening when to add/remove pois to markerClusters layer */
 var poiLayer = L.geoJson(null);
 var pois = L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
@@ -135,7 +85,7 @@ var pois = L.geoJson(null, {
 $.getJSON("data/CO2.geojson", function (data) {
   pois.addData(data);
   map.addLayer(poiLayer);
-}); */
+});
 
 map = L.map("map", {
   zoom: 10,
