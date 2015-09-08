@@ -6,18 +6,19 @@
     <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="description" content="Boston area CO2 tank refill locations">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Boston area homebrew CO2 tank refill locations">
     <meta name="author" content="David Todd">
     <title>CO2 Refill Locations</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Lato%7COswald:400' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css">
-    <link rel="stylesheet" href="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css">
-    <link rel="stylesheet" href="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css">
-    <link rel="stylesheet" href="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.24.0/L.Control.Locate.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato%7COswald:400">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
+    <link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css">
+    <link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.css">
+    <link rel="stylesheet" href="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.css">
     <link rel="stylesheet" href="assets/css/app.css">
 
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/favicon-76.png">
@@ -29,47 +30,48 @@
 
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="navbar-header">
-        <div class="navbar-icon-container">
-          <a href="#" class="navbar-icon pull-right visible-xs" onclick="$('.navbar-collapse').collapse('toggle'); return false;"><i class="fa fa-bars fa-lg" style="color: white"></i></a>
-          <a href="#" class="navbar-icon pull-right visible-xs" onclick="$('#sidebar').toggle(); map.invalidateSize(); return false;"><i class="fa fa-fire-extinguisher fa-lg" style="color: white"></i></a>
-        </div>
-        <a class="navbar-brand" href="#"><i class="fa fa-fire-extinguisher" style="color: orange"></i>&nbsp;&nbsp;CO2 Refills</a><a class="navbar-brand visible-xs" href="http://bostonworts.github.io/co2" target="_blank"><i class="fa fa-external-link" title="Open in new tab"></i></a>
-      </div>
-      <div class="navbar-collapse collapse">
-        <form class="navbar-form navbar-right" role="search">
-          <div class="form-group has-feedback navbar-right">
-              <input id="searchbox" type="text" placeholder="Search" class="form-control">
-              <span id="searchicon" class="fa fa-search form-control-feedback"></span>
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <div class="navbar-icon-container">
+            <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a>
+            <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-fire-extinguisher fa-lg white"></i></a>
           </div>
-        </form>
-        <ul class="nav navbar-nav">
-          <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" onclick="$('#aboutModal').modal('show'); return false;"><i class="fa fa-question-circle" style="color: white"></i>&nbsp;&nbsp;About</a></li>
-          <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" onclick="map.fitBounds(pois.getBounds()); return false;"><i class="fa fa-arrows-alt" style="color: white"></i>&nbsp;&nbsp;Full Extent</a></li>
-          <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" onclick="$('#sidebar').toggle(); map.invalidateSize(); return false;"><i class="fa fa-fire-extinguisher" style="color: white"></i>&nbsp;&nbsp;Locations</a></li>
-        </ul>
-      </div><!--/.navbar-collapse -->
+          <a class="navbar-brand" href="#"><i class="fa fa-map" style="color: orange"></i>&nbsp;&nbsp;CO2 Refills</a>
+          <a class="navbar-brand visible-xs" href="http://bostonworts.github.io/co2" target="_blank"><i class="fa fa-external-link" title="Open in new tab"></i></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right" role="search">
+            <div class="form-group has-feedback">
+                <input id="searchbox" type="text" placeholder="Search" class="form-control">
+                <span id="searchicon" class="fa fa-search form-control-feedback"></span>
+            </div>
+          </form>
+          <ul class="nav navbar-nav">
+            <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="about-btn"><i class="fa fa-question-circle white"></i>&nbsp;&nbsp;About</a></li>
+            <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="full-extent-btn"><i class="fa fa-arrows-alt"></i>&nbsp;&nbsp;Zoom To Full Extent</a></li>
+            <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-fire-extinguisher white"></i>&nbsp;&nbsp;Places</a></li>
+          </ul>
+        </div><!--/.navbar-collapse -->
+      </div>
     </div>
 
     <div id="container">
       <div id="sidebar">
         <div class="sidebar-wrapper">
-          <div class="panel panel-default" style="margin: 0px; border: none; border-radius: 0px; -webkit-box-shadow: none; box-shadow: none;" id="features">
+          <div class="panel panel-default" id="features">
             <div class="panel-heading">
-              <h3 class="panel-title">Locations
-              <button type="button" class="btn btn-xs btn-default pull-right" style="margin-top: -2px;" onclick="$('#sidebar').hide(); map.invalidateSize();"><i class="fa fa-chevron-left"></i></button></h3>
+              <h3 class="panel-title">Places
+              <button type="button" class="btn btn-xs btn-default pull-right" id="sidebar-hide-btn"><i class="fa fa-chevron-left"></i></button></h3>
             </div>
             <div class="panel-body">
-              <p>
-                <div class="row">
-                  <div class="col-xs-8 col-md-8">
-                    <input type="text" class="form-control search" placeholder="Search" />
-                  </div>
-                  <div class="col-xs-4 col-md-4">
-                    <button type="button" class="btn btn-primary pull-right sort" data-sort="feature-name" id="sort-btn"><i class="fa fa-sort"></i>&nbsp;&nbsp;Sort</button>
-                  </div>
+              <div class="row">
+                <div class="col-xs-8 col-md-8">
+                  <input type="text" class="form-control search" placeholder="Filter" />
                 </div>
-              </p>
+                <div class="col-xs-4 col-md-4">
+                  <button type="button" class="btn btn-primary pull-right sort" data-sort="feature-name" id="sort-btn"><i class="fa fa-sort"></i>&nbsp;&nbsp;Sort</button>
+                </div>
+              </div>
             </div>
             <div class="sidebar-table">
               <table class="table table-hover" id="feature-list">
@@ -95,7 +97,7 @@
     <div id="loading">
       <div class="loading-indicator">
         <div class="progress progress-striped active">
-          <div class="progress-bar progress-bar-info" style="width: 100%"></div>
+          <div class="progress-bar progress-bar-info progress-bar-full"></div>
         </div>
       </div>
     </div>
@@ -105,33 +107,41 @@
         <div class="modal-content">
           <div class="modal-header">
             <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title"><i class="fa fa-fire-extinguisher fa-border pull-left" style="color: orange"></i>&nbsp;&nbsp;CO2 Refill Locations</h4>
+            <h4 class="modal-title"><i class="fa fa-fire-extinguisher fa-border pull-left" style="color: orange"></i>&nbsp;&nbsp;CO2 Tank Refill Locations</h4>
           </div>
           <div class="modal-body">
             <ul class="nav nav-tabs" id="aboutTabs">
-              <li class="active"><a href="#about" data-toggle="tab"><i class="fa fa-question-circle"></i>&nbsp;About this map</a></li>
+              <li class="active"><a href="#about" data-toggle="tab"><i class="fa fa-question-circle"></i>&nbsp;About the project</a></li>
               <li><a href="#contact" data-toggle="tab"><i class="fa fa-envelope"></i>&nbsp;Contact us</a></li>
               <li><a href="#disclaimer" data-toggle="tab"><i class="fa fa-exclamation-circle"></i>&nbsp;Disclaimer</a></li>
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-globe"></i>&nbsp;Metadata <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                  <li><a href="#co2-tab" data-toggle="tab"><i class="fa fa-fire-extinguisher fa-border" style="color: orange"></i>&nbsp;CO2 Refill Locations</a></li>
+                  <li><a href="#places-tab" data-toggle="tab"><i class="fa fa-fire-extinguisher fa-border" style="color: orange"></i>&nbsp;Places</a></li>
                 </ul>
               </li>
             </ul>
-            <div class="tab-content" id="aboutTabsContent" style="padding-top: 10px;">
+            <div class="tab-content" id="aboutTabsContent">
               <div class="tab-pane fade active in" id="about">
                 <p>This map of Boston area CO2 tank refill locations is brought to you by the <a href="http://wort.org">Boston Wort Processors</a>.  If you would like to contribute additional locations or edit a locations details, go <a href="https://docs.google.com/spreadsheets/d/1tK9U2keizinvcT7Rkqqt1tgL42OR3aRHGqtg_qzrJIc/edit#gid=0">here</a>.</p>
+                <p style="clear:both"><strong>CO2 Refill Places</strong> look like this: </p>
+                <div><img src='assets/img/gas.png' width='24' height='28' alt="co2"><br><br></div>
+                <p style="clear:both"><strong>Clusters of Places</strong> <em>at various densities</em> look like this: </p>
+                <div class="marker-cluster marker-cluster-small legend"><div><span>6</span></div></div>
+                <div class="marker-cluster marker-cluster-medium legend"><div><span>13</span></div></div>
+                <div class="marker-cluster marker-cluster-large legend"><div><span>187</span></div></div><br><br>
               </div>
               <div id="disclaimer" class="tab-pane fade text-danger">
                 <p>The data provided on this site is for informational and planning purposes only.</p>
                 <p>Absolutely no accuracy or completeness guarantee is implied or intended. All information on this map is subject to such variations and corrections as might result from a complete title search and/or accurate field survey.</p>
               </div>
               <div class="tab-pane fade" id="contact">
-                <a href="mailto:webmaster@wort.org">webmaster@wort.org</a>
+                <p>For all map inquiries, contact <a href="mailto:webmaster@wort.org">webmaster@wort.org</a>.
+                <p>Edits and additional places can be proposed on the Google Docs <a href="https://docs.google.com/spreadsheets/d/1tK9U2keizinvcT7Rkqqt1tgL42OR3aRHGqtg_qzrJIc/edit#gid=0">spreadsheet</a>.</p>
+                <p>Code can be found on <a href="https://github.com/bostonworts/co2" target="_blank"><i class="fa fa-github fa-lg" style="color: black" title="Github"></i> Github</a>.</p>
               </div>
-              <div class="tab-pane fade" id="co2-tab">
-                <p>All data provided by <a href="http://wort.org">Boston Wort Processor</a> club members. Last updated on 04/08/2015.</p>
+              <div class="tab-pane fade" id="places-tab">
+                <p>Place data researched and provided by <a href="http://www.wort.org" target="_blank">Boston Wort Processor</a> club members.  Last updated 04-08-2015.</p>
               </div>
             </div>
           </div>
@@ -173,18 +183,19 @@
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.2/typeahead.bundle.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js"></script>
-    <script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-    <script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js"></script>
-    <script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.24.0/L.Control.Locate.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.5/typeahead.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
+    <script src="https://cdn.maptiks.com/maptiks-leaflet.min.js"></script>
+    <script maptiks.trackcode='8c33bb2f-9326-4380-8649-a975095713ac';></script>
+    <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js"></script>
+    <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js"></script>
     <script src="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
     <script src="assets/js/app.js"></script>
-  
+
     <!-- Start of StatCounter Code for Default Guide -->
     <script type="text/javascript">
       var sc_project=10026606;

@@ -1,16 +1,66 @@
-var map, featureList, poiSearch = [];
+var map, featureList, placeSearch = [];
 
-$(document).on("click", ".feature-name", function(e) {
-  sidebarClick(parseInt($(this).attr('id')));
+$(window).resize(function() {
+  sizeLayerControl();
 });
 
+$(document).on("click", ".feature-row", function(e) {
+  $(document).off("mouseout", ".feature-row", clearHighlight);
+  sidebarClick(parseInt($(this).attr("id"), 10));
+});
+
+$(document).on("mouseover", ".feature-row", function(e) {
+  highlight.clearLayers().addLayer(L.circleMarker([$(this).attr("lat"), $(this).attr("lng")], highlightStyle));
+});
+
+$(document).on("mouseout", ".feature-row", clearHighlight);
+
+$("#about-btn").click(function() {
+  $("#aboutModal").modal("show");
+  $(".navbar-collapse.in").collapse("hide");
+  return false;
+});
+
+$("#full-extent-btn").click(function() {
+  map.fitBounds(place.getBounds());
+  $(".navbar-collapse.in").collapse("hide");
+  return false;
+});
+
+$("#list-btn").click(function() {
+  $('#sidebar').toggle();
+  map.invalidateSize();
+  return false;
+});
+
+$("#nav-btn").click(function() {
+  $(".navbar-collapse").collapse("toggle");
+  return false;
+});
+
+$("#sidebar-toggle-btn").click(function() {
+  $("#sidebar").toggle();
+  map.invalidateSize();
+  return false;
+});
+
+$("#sidebar-hide-btn").click(function() {
+  $('#sidebar').hide();
+  map.invalidateSize();
+});
+
+function sizeLayerControl() {
+  $(".leaflet-control-layers").css("max-height", $("#map").height() - 50);
+}
+
+function clearHighlight() {
+  highlight.clearLayers();
+}
+
 function sidebarClick(id) {
-  map.addLayer(poiLayer);
   var layer = markerClusters.getLayer(id);
-  markerClusters.zoomToShowLayer(layer, function() {
-    map.setView([layer.getLatLng().lat, layer.getLatLng().lng], 17);
-    layer.fire("click");
-  });
+  map.setView([layer.getLatLng().lat, layer.getLatLng().lng], 17);
+  layer.fire("click");
   /* Hide sidebar and go to the map on small screens */
   if (document.body.clientWidth <= 767) {
     $("#sidebar").hide();
@@ -18,18 +68,48 @@ function sidebarClick(id) {
   }
 }
 
-/* Basemap Layers
-   Example basemaps from Mapbox */
+function syncSidebar() {
+  /* Empty sidebar features */
+  $("#feature-list tbody").empty();
+  /* Loop through place layer and add only features which are in the map bounds */
+  place.eachLayer(function (layer) {
+    if (map.hasLayer(placeLayer)) {
+      if (map.getBounds().contains(layer.getLatLng())) {
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/gas.png"></td><td class="feature-name">' + layer.feature.properties.Place + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      }
+    }
+  });
+  /* Update list.js featureList */
+  featureList = new List("features", {
+    valueNames: ["feature-name"]
+  });
+  featureList.sort("feature-name", {
+    order: "asc"
+  });
+}
+
+/* Basemap Layers */
 var mapboxToon = L.tileLayer("https://{s}.tiles.mapbox.com/v3/examples.bc17bb2a/{z}/{x}/{y}.png", {
   detectRetina: 'true',
-  maxZoom: 21,
-  noWrap: true,
+  maxZoom: 19,
+  subdomains: ["a", "b", "c", "d"],
+  attribution: 'Tiles courtesy of <a href="http://www.mapbox.com/" target="_blank">Mapbox</a> '
+});
+var mapboxSat = L.tileLayer("http://{s}.tiles.mapbox.com/v3/examples.map-qfyrx5r8/{z}/{x}/{y}.png", {
+  detectRetina: 'true',
+  maxZoom: 18,
   subdomains: ["a", "b", "c", "d"],
   attribution: 'Tiles courtesy of <a href="http://www.mapbox.com/" target="_blank">Mapbox</a> '
 });
 
 /* Overlay Layers */
 var highlight = L.geoJson(null);
+var highlightStyle = {
+  stroke: false,
+  fillColor: "#00FFFF",
+  fillOpacity: 0.7,
+  radius: 10
+};
 
 /* Single marker cluster layer to hold all clusters */
 var markerClusters = new L.MarkerClusterGroup({
@@ -39,17 +119,17 @@ var markerClusters = new L.MarkerClusterGroup({
   disableClusteringAtZoom: 16
 });
 
-/* Empty layer placeholder to add to layer control for listening when to add/remove pois to markerClusters layer */
-var poiLayer = L.geoJson(null);
-var pois = L.geoJson(null, {
+/* Empty layer placeholder to add to layer control for listening when to add/remove place to markerClusters layer */
+var placeLayer = L.geoJson(null);
+var place = L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
     return L.marker(latlng, {
-      icon: L.AwesomeMarkers.icon({
-        icon: 'fire-extinguisher',
-        markerColor: 'orange',
-        prefix: 'fa',
-        spin:false
-    }),
+      icon: L.icon({
+        iconUrl: "assets/img/gas.png",
+        iconSize: [24, 28],
+        iconAnchor: [12, 28],
+        popupAnchor: [0, -25]
+      }),
       title: feature.properties.Place,
       riseOnHover: true
     });
@@ -62,16 +142,11 @@ var pois = L.geoJson(null, {
           $("#feature-title").html("<i class='fa fa-fire-extinguisher fa-border' style='color: orange'></i>&nbsp;" + feature.properties.Place);
           $("#feature-info").html(content);
           $("#featureModal").modal("show");
-          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
-            stroke: false,
-            fillColor: "#00FFFF",
-            fillOpacity: 0.7,
-            radius: 10
-          }));
+          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
         }
       });
-      $("#feature-list tbody").append('<tr style="cursor: pointer;"><td style="vertical-align: middle;"><i class="fa fa-fire-extinguisher" style="color: orange"></i>&nbsp;</td><td class="feature-name" id="'+L.stamp(layer)+'">'+layer.feature.properties.Place+'</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      poiSearch.push({
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/gas.png"></td><td class="feature-name">' + layer.feature.properties.Place + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      placeSearch.push({
         name: layer.feature.properties.Place,
         address: layer.feature.properties.Address,
         source: "Places",
@@ -82,14 +157,14 @@ var pois = L.geoJson(null, {
     }
   }
 });
-$.getJSON("data/CO2.geojson", function (data) {
-  pois.addData(data);
-  map.addLayer(poiLayer);
+$.getJSON("data/co2.geojson", function (data) {
+  place.addData(data);
+  map.addLayer(placeLayer);
 });
 
 map = L.map("map", {
   zoom: 10,
-  center: [42.404703, -71.154661],
+  center: [40.702222, -73.979378],
   layers: [mapboxToon, markerClusters, highlight],
   zoomControl: false,
   attributionControl: false
@@ -97,15 +172,22 @@ map = L.map("map", {
 
 /* Layer control listeners that allow for a single markerClusters layer */
 map.on("overlayadd", function(e) {
-  if (e.layer === poiLayer) {
-    markerClusters.addLayer(pois);
+  if (e.layer === placeLayer) {
+    markerClusters.addLayer(place);
+    syncSidebar();
   }
 });
 
 map.on("overlayremove", function(e) {
-  if (e.layer === poiLayer) {
-    markerClusters.removeLayer(pois);
+  if (e.layer === placeLayer) {
+    markerClusters.removeLayer(place);
+    syncSidebar();
   }
+});
+
+/* Filter sidebar feature list to only show features in current map bounds */
+map.on("moveend", function (e) {
+  syncSidebar();
 });
 
 /* Clear feature highlight when map is clicked */
@@ -129,7 +211,7 @@ var attributionControl = L.control({
 });
 attributionControl.onAdd = function (map) {
   var div = L.DomUtil.create("div", "leaflet-control-attribution");
-  div.innerHTML = "<span class='hidden-xs'>Developed by <a href='http://davidtodd.info'>davidtodd.info</a> | </span><a href='#' onclick='$(\"#attributionModal\").modal(\"show\"); return false;'>Attribution</a>";
+  div.innerHTML = "<span class='hidden-xs'>Developed by <a href='http://davidtodd.info'>DT</a> | </span><a href='#' onclick='$(\"#attributionModal\").modal(\"show\"); return false;'>Attribution</a>";
   return div;
 };
 map.addControl(attributionControl);
@@ -154,7 +236,7 @@ var locateControl = L.control.locate({
     weight: 1,
     clickable: false
   },
-  icon: "icon-direction",
+  icon: "fa fa-location-arrow",
   metric: false,
   strings: {
     title: "My location",
@@ -170,15 +252,21 @@ var locateControl = L.control.locate({
   }
 }).addTo(map);
 
-var isCollapsed = true;
+/* Larger screens get expanded layer control and visible sidebar */
+if (document.body.clientWidth <= 767) {
+  var isCollapsed = true;
+} else {
+  var isCollapsed = false;
+}
 
 var baseLayers = {
-  "Basemap": mapboxToon
+  "Basemap": mapboxToon,
+  "Imagery": mapboxSat
 };
 
 var groupedOverlays = {
   "Points of Interest": {
-    "<i class='fa fa-fire-extinguisher' style='color: orange'></i>&nbsp;CO2 Refills": poiLayer
+    "<img width='20' height='24' src='assets/img/gas.png'></i>&nbsp;CO2 Refills": placeLayer
   }
 };
 
@@ -191,21 +279,33 @@ $("#searchbox").click(function () {
   $(this).select();
 });
 
+/* Prevent hitting enter from refreshing the page */
+$("#searchbox").keypress(function (e) {
+  if (e.which == 13) {
+    e.preventDefault();
+  }
+});
+
+$("#featureModal").on("hidden.bs.modal", function (e) {
+  $(document).on("mouseout", ".feature-row", clearHighlight);
+});
+
 /* Typeahead search functionality */
 $(document).one("ajaxStop", function () {
   $("#loading").hide();
-  /* Fit map to trail bounds */
-  map.fitBounds(pois.getBounds());
+  sizeLayerControl();
+  /* Fit map to place bounds */
+  map.fitBounds(place.getBounds());
   featureList = new List("features", {valueNames: ["feature-name"]});
   featureList.sort("feature-name", {order:"asc"});
 
-  var poiBH = new Bloodhound({
+  var placeBH = new Bloodhound({
     name: "Places",
     datumTokenizer: function (d) {
       return Bloodhound.tokenizers.whitespace(d.name);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: poiSearch,
+    local: placeSearch,
     limit: 10
   });
 
@@ -239,7 +339,7 @@ $(document).one("ajaxStop", function () {
     },
     limit: 10
   });
-  poiBH.initialize();
+  placeBH.initialize();
   geonamesBH.initialize();
 
   /* instantiate the typeahead UI */
@@ -250,7 +350,7 @@ $(document).one("ajaxStop", function () {
   }, {
     name: "Places",
     displayKey: "name",
-    source: poiBH.ttAdapter(),
+    source: placeBH.ttAdapter(),
     templates: {
       header: "<h4 class='typeahead-header'><i class='fa fa-fire-extinguisher' style='color: orange'></i>&nbsp;Places</h4>",
       suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
@@ -264,8 +364,8 @@ $(document).one("ajaxStop", function () {
     }
   }).on("typeahead:selected", function (obj, datum) {
     if (datum.source === "Places") {
-      if (!map.hasLayer(poiLayer)) {
-        map.addLayer(poiLayer);
+      if (!map.hasLayer(placeLayer)) {
+        map.addLayer(placeLayer);
       }
       map.setView([datum.lat, datum.lng], 17);
       if (map._layers[datum.id]) {
@@ -288,3 +388,13 @@ $(document).one("ajaxStop", function () {
   $(".twitter-typeahead").css("position", "static");
   $(".twitter-typeahead").css("display", "block");
 });
+
+// Leaflet patch to make layer control scrollable on touch browsers
+var container = $(".leaflet-control-layers")[0];
+if (!L.Browser.touch) {
+  L.DomEvent
+  .disableClickPropagation(container)
+  .disableScrollPropagation(container);
+} else {
+  L.DomEvent.disableClickPropagation(container);
+}
