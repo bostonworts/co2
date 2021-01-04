@@ -267,8 +267,8 @@ if (document.body.clientWidth <= 767) {
 }
 
 var baseLayers = {
-  "Basemap": mapboxToon,
-  "Imagery": mapboxSat
+  "Basemap": cartoDarkMatter
+  //"Imagery": mapboxSat
 };
 
 var groupedOverlays = {
