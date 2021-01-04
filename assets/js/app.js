@@ -91,14 +91,15 @@ function syncSidebar() {
 }
 
 /* Basemap Layers */
-var mapboxToon = L.tileLayer('//api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-  attribution: 'Imagery from <a href="http://mapbox.com/about/maps/">MapBox</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  subdomains: 'abcd',
-  detectRetina: 'true',
-  id: 'dmofot.paojn4n1',
-  accessToken: 'pk.eyJ1IjoiZG1vZm90IiwiYSI6IjMyODFmMjkwYTQ1NjUxYTEzOWYwOGZlMTMxY2FjZThiIn0.eNpL_ksyAN2Tcy5UeLqhyQ'
+var cartoDarkMatter = L.tileLayer('//{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd'
+  //detectRetina: 'true',
+  //id: 'dmofot.paojn4n1',
+  //accessToken: 'pk.eyJ1IjoiZG1vZm90IiwiYSI6IjMyODFmMjkwYTQ1NjUxYTEzOWYwOGZlMTMxY2FjZThiIn0.eNpL_ksyAN2Tcy5UeLqhyQ'
 });
 
+/* Old Basemap Layer
 var mapboxSat = L.tileLayer('//api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
   attribution: 'Imagery from <a href="http://mapbox.com/about/maps/">MapBox</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   subdomains: 'abcd',
@@ -106,6 +107,7 @@ var mapboxSat = L.tileLayer('//api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?acce
   id: 'dmofot.paomdkki',
   accessToken: 'pk.eyJ1IjoiZG1vZm90IiwiYSI6IjMyODFmMjkwYTQ1NjUxYTEzOWYwOGZlMTMxY2FjZThiIn0.eNpL_ksyAN2Tcy5UeLqhyQ'
 });
+*/
 
 /* Overlay Layers */
 var highlight = L.geoJson(null);
@@ -170,7 +172,7 @@ $.getJSON("data/co2.geojson", function (data) {
 map = L.map("map", {
   zoom: 10,
   center: [40.702222, -73.979378],
-  layers: [mapboxToon, markerClusters, highlight],
+  layers: [cartoDarkMatter, markerClusters, highlight],
   zoomControl: false,
   attributionControl: false
 });
